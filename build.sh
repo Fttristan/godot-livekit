@@ -138,7 +138,7 @@ fetch_godotcpp() {
     
     # 2. Clone the actual source for the version you need 
     # (Using 4.3 as it is the current stable; change to 4.2 if needed)
-    git clone -b 4.3 https://github.com/godotengine/godot-cpp.git
+    git clone -b 4.5 https://github.com/godotengine/godot-cpp.git
     
     cd godot-cpp
     git submodule update --init
