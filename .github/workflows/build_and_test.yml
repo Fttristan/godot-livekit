@@ -53,7 +53,7 @@ jobs:
       if: matrix.platform == 'android'
       uses: nttld/setup-ndk@v1
       with:
-        ndk-version: r26d
+        ndk-version: r28d
 
     - name: Cache dependencies
       uses: actions/cache@v4
