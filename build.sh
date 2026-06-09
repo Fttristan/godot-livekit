@@ -131,26 +131,33 @@ check_godotcpp_cache() {
 
 # Function to fetch godot-cpp prebuilt
 fetch_godotcpp() {
-    echo -e "${YELLOW}Fetching godot-cpp prebuilt (${GODOT_CPP_VERSION})...${NC}"
+    echo -e "${YELLOW}Fetching godot-cpp source and compiling manually...${NC}"
     
-    local archive="godot-cpp-prebuilt-${GODOT_CPP_VERSION}.zip"
-    local url="https://github.com/NodotProject/godot-cpp-builds/releases/download/${GODOT_CPP_VERSION}/${archive}"
-    
+    # 1. Remove old stuff
     rm -rf godot-cpp
-    mkdir -p godot-cpp
     
-    echo -e "${YELLOW}Downloading ${url}...${NC}"
-    curl -sL "${url}" -o "${archive}"
+    # 2. Clone the actual source for the version you need 
+    # (Using 4.3 as it is the current stable; change to 4.2 if needed)
+    git clone -b 4.3 https://github.com/godotengine/godot-cpp.git
     
-    echo -e "${YELLOW}Extracting...${NC}"
-    mkdir -p godot-cpp-temp
-    unzip -q "${archive}" -d godot-cpp-temp
+    cd godot-cpp
+    git submodule update --init
     
-    mv godot-cpp-temp/godot-cpp-prebuilt/* godot-cpp/
-    rm -rf godot-cpp-temp "${archive}"
+    # 3. Compile it for your specific target
+    echo -e "${YELLOW}Compiling godot-cpp (this takes a few minutes but only happens once)...${NC}"
+    scons platform=$PLATFORM arch=$ARCH target=$BUILD_TARGET -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
     
-    echo "$GODOT_CPP_VERSION" > godot-cpp/.version
-    echo -e "${GREEN}godot-cpp prebuilt downloaded and extracted successfully!${NC}"
+    # 4. macOS Hack: SCons looks for 'universal' even if we built 'x86_64'
+    if [ "$PLATFORM" == "macos" ]; then
+        cd bin
+        # Find whatever was just built and link it to the 'universal' name
+        local built_file=$(ls libgodot-cpp.macos.*.a | head -n 1)
+        ln -s "$built_file" libgodot-cpp.macos.${BUILD_TARGET}.universal.a
+        cd ..
+    fi
+    
+    cd ..
+    echo -e "${GREEN}godot-cpp compiled successfully!${NC}"
 }
 
 # Function to download livekit
