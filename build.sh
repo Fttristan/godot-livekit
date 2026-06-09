@@ -147,8 +147,10 @@ fetch_godotcpp() {
     git submodule update --init
     
     # 3. Compile it for your specific target
-    echo -e "${YELLOW}Compiling godot-cpp (this takes a few minutes but only happens once)...${NC}"
-    scons platform=$PLATFORM arch=$ARCH target=$BUILD_TARGET -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
+    # Inside fetch_godotcpp function...
+    echo -e "${YELLOW}Compiling godot-cpp...${NC}"
+    # ADD $SCONS_FLAGS HERE:
+    scons $SCONS_FLAGS platform=$PLATFORM arch=$ARCH target=$BUILD_TARGET -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
     
     # 4. macOS Hack: SCons looks for 'universal' even if we built 'x86_64'
     if [ "$PLATFORM" == "macos" ]; then
