@@ -101,7 +101,10 @@ setup_windows() {
 setup_android() {
     PLATFORM="android"
     ARCH="arm64"
-    SCONS_FLAGS="platform=android arch=arm64 screen_capture=no"
+    # Capture the NDK path set by nttld/setup-ndk
+    local ndk_path="${ANDROID_NDK_ROOT:-$ANDROID_NDK_HOME}"
+    SCONS_FLAGS="platform=android arch=arm64 screen_capture=no android_ndk_root=${ndk_path}"
+    
     LIVEKIT_ARCHIVE="livekit-sdk-android-arm64-${LIVEKIT_VERSION}.tar.gz"
     LIVEKIT_URL="https://github.com/krazyjakee/client-sdk-cpp/releases/download/v${LIVEKIT_VERSION}/${LIVEKIT_ARCHIVE}"
     SKIP_FRAMETAP=true
